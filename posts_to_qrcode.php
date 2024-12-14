@@ -32,7 +32,7 @@ function ptqc_add_qr_code( $contnet ) {
 		$height    = get_option( 'ptqc_height' );
 		$width     = get_option( 'ptqc_width' );
 		$dimension = apply_filters( 'pqrc_qr_code_dimension', $height . 'x' . $width );
-	
+
 		$qr_code_url = "https://api.qrserver.com/v1/create-qr-code/?size=$dimension&data=$current_url";
 		$qr_code     = "<p><img src='$qr_code_url' alt='QR Code' /></p>";
 		$contnet    .= $qr_code;
@@ -41,12 +41,12 @@ function ptqc_add_qr_code( $contnet ) {
 	return $contnet;
 }
 
-//add_filter( 'pqrc_excluded_post_types', 'ptqc_exclude_post_types' );
+// add_filter( 'pqrc_excluded_post_types', 'ptqc_exclude_post_types' );.
 function ptqc_exclude_post_types() {
 	return array( 'page' );
 }
 
-//add_filter( 'pqrc_qr_code_dimension', 'ptqc_qr_code_dimension' );
+// add_filter( 'pqrc_qr_code_dimension', 'ptqc_qr_code_dimension' );
 function ptqc_qr_code_dimension() {
 	return '300x300';
 }
@@ -57,11 +57,20 @@ function ptqc_qr_code_dimension() {
 add_action( 'admin_init', 'ptqc_settings_init' );
 
 function ptqc_settings_init() {
-	add_settings_field( 'ptqc_height', __( 'QR Code Height', 'post-to-qrcde' ), 'ptqc_height_callback', 'general' );
-	add_settings_field( 'ptqc_width', __( 'QR Code Width', 'post-to-qrcde' ), 'ptqc_width_callback', 'general' );
+	// Add settings sections.
+	add_settings_section( 'ptqc_section', __( 'QR Code Settings', 'post-to-qrcde' ), 'ptqc_section_callback', 'general' );
 
+	// Add settings field
+	add_settings_field( 'ptqc_height', __( 'QR Code Height', 'post-to-qrcde' ), 'ptqc_height_callback', 'general', 'ptqc_section' );
+	add_settings_field( 'ptqc_width', __( 'QR Code Width', 'post-to-qrcde' ), 'ptqc_width_callback', 'general', 'ptqc_section' );
+
+	// register the settings to get the value from the options table.
 	register_setting( 'general', 'ptqc_height', array( 'sanitize_callback' => 'esc_attr' ) );
 	register_setting( 'general', 'ptqc_width', array( 'sanitize_callback' => 'esc_attr' ) );
+}
+
+function ptqc_section_callback() {
+	echo '<p>' . __( 'Custom settings for QR Code', 'post-to-qrcde' ) . '</p>';
 }
 
 function ptqc_height_callback() {
