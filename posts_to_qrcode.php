@@ -7,7 +7,7 @@
  * Author:            Arafat Jamil
  * Author URI:        https://github.com/arafatjamil01
  * License:           GPL v2 or later
- * Text Domain:       post-to-qrcde
+ * Text Domain:       post-to-qrcode
  * Domain Path:       /languages/
  */
 
@@ -17,9 +17,9 @@
 // register_deactivation_hook( __FILE__, 'word_count_deactivate' );
 // function word_count_deactivate() {}
 
-add_filter( 'the_content', 'ptqc_add_qr_code', 11 );
+add_filter( 'the_content', 'pqrc_add_qr_code', 11 );
 
-function ptqc_add_qr_code( $contnet ) {
+function pqrc_add_qr_code( $contnet ) {
 	if ( is_single() ) {
 		$current_url       = urlencode( get_permalink() );
 		$current_post_type = get_post_type();
@@ -29,8 +29,8 @@ function ptqc_add_qr_code( $contnet ) {
 			return $contnet;
 		}
 
-		$height    = get_option( 'ptqc_height' );
-		$width     = get_option( 'ptqc_width' );
+		$height    = get_option( 'pqrc_height' );
+		$width     = get_option( 'pqrc_width' );
 		$dimension = apply_filters( 'pqrc_qr_code_dimension', $height . 'x' . $width );
 
 		$qr_code_url = "https://api.qrserver.com/v1/create-qr-code/?size=$dimension&data=$current_url";
@@ -41,53 +41,55 @@ function ptqc_add_qr_code( $contnet ) {
 	return $contnet;
 }
 
-// add_filter( 'pqrc_excluded_post_types', 'ptqc_exclude_post_types' );.
-function ptqc_exclude_post_types() {
+// add_filter( 'pqrc_excluded_post_types', 'pqrc_exclude_post_types' );.
+function pqrc_exclude_post_types() {
 	return array( 'page' );
 }
 
-// add_filter( 'pqrc_qr_code_dimension', 'ptqc_qr_code_dimension' );
-function ptqc_qr_code_dimension() {
+// add_filter( 'pqrc_qr_code_dimension', 'pqrc_qr_code_dimension' );
+function pqrc_qr_code_dimension() {
 	return '300x300';
 }
 
 /**
  * Adding settings section for the plugin
  */
-add_action( 'admin_init', 'ptqc_settings_init' );
+add_action( 'admin_init', 'pqrc_settings_init' );
 
 /**
  * Function to initialize the settings with admin_init hook.
  *
  * @return void
  */
-function ptqc_settings_init() {
+function pqrc_settings_init() {
 	// Add settings sections.
-	add_settings_section( 'ptqc_section', __( 'QR Code Settings', 'post-to-qrcde' ), 'ptqc_section_callback', 'general' );
+	add_settings_section( 'pqrc_section', __( 'QR Code Settings', 'post-to-qrcode' ), 'pqrc_section_callback', 'general' );
 
 	// Add settings field.
-	add_settings_field( 'ptqc_height', __( 'QR Code Height', 'post-to-qrcde' ), 'ptqc_display_field', 'general', 'ptqc_section', array( 'ptqc_height' ) );
-	add_settings_field( 'ptqc_width', __( 'QR Code Width', 'post-to-qrcde' ), 'ptqc_display_field', 'general', 'ptqc_section', array( 'ptqc_width' ) );
-	add_settings_field( 'ptqc_extra', __( 'Extra', 'post-to-qrcde' ), 'ptqc_display_field', 'general', 'ptqc_section', array( 'ptqc_extra' ) );
+	add_settings_field( 'pqrc_height', __( 'QR Code Height', 'post-to-qrcode' ), 'pqrc_display_field', 'general', 'pqrc_section', array( 'pqrc_height' ) );
+	add_settings_field( 'pqrc_width', __( 'QR Code Width', 'post-to-qrcode' ), 'pqrc_display_field', 'general', 'pqrc_section', array( 'pqrc_width' ) );
+	add_settings_field( 'pqrc_extra', __( 'Extra', 'post-to-qrcode' ), 'pqrc_display_field', 'general', 'pqrc_section', array( 'pqrc_extra' ) );
+	add_settings_field( 'pqrc_select', __( 'Dropdown', 'post-to-qrcode' ), 'pqrc_display_select_field', 'general', 'pqrc_section' );
 
 	// register the settings to get the value from the options table.
-	register_setting( 'general', 'ptqc_height', array( 'sanitize_callback' => 'esc_attr' ) );
-	register_setting( 'general', 'ptqc_width', array( 'sanitize_callback' => 'esc_attr' ) );
-	register_setting( 'general', 'ptqc_extra', array( 'sanitize_callback' => 'esc_attr' ) );
+	register_setting( 'general', 'pqrc_height', array( 'sanitize_callback' => 'esc_attr' ) );
+	register_setting( 'general', 'pqrc_width', array( 'sanitize_callback' => 'esc_attr' ) );
+	register_setting( 'general', 'pqrc_extra', array( 'sanitize_callback' => 'esc_attr' ) );
+	register_setting( 'general', 'pqrc_select', array( 'sanitize_callback' => 'esc_attr' ) );
 }
 
 /**
  * Function to show a section on a callback.
  */
-function ptqc_section_callback() {
-	echo '<p>' . __( 'Custom settings for QR Code', 'post-to-qrcde' ) . '</p>';
+function pqrc_section_callback() {
+	echo '<p>' . __( 'Custom settings for QR Code', 'post-to-qrcode' ) . '</p>';
 }
 
 /**
  * Single callback for all the settings one. This function will be called automatically
  * and the data will render naturally every time this data is called.
  */
-function ptqc_display_field( $args ) {
+function pqrc_display_field( $args ) {
 	$option = get_option( $args[0] ); // $args[0] is for the first argument, since the function add_settings_field passed only one argument, the first one will appear here.
 	printf( '<input type="text" id="%s" name="%s" value="%s" />', $args[0], $args[0], $option );
 }
@@ -97,9 +99,9 @@ function ptqc_display_field( $args ) {
  *
  * @return void
  */
-function ptqc_height_callback() {
-	$height = get_option( 'ptqc_height' );
-	printf( '<input type="text" id="ptqc_height" name="ptqc_height" value="%s" />', $height );
+function pqrc_height_callback() {
+	$height = get_option( 'pqrc_height' );
+	printf( '<input type="text" id="pqrc_height" name="pqrc_height" value="%s" />', $height );
 }
 
 /**
@@ -107,7 +109,38 @@ function ptqc_height_callback() {
  *
  * @return void
  */
-function ptqc_width_callback() {
-	$width = get_option( 'ptqc_width' );
-	printf( '<input type="text" id="ptqc_width" name="ptqc_width" value="%s" />', $width );
+function pqrc_width_callback() {
+	$width = get_option( 'pqrc_width' );
+	printf( '<input type="text" id="pqrc_width" name="pqrc_width" value="%s" />', $width );
+}
+
+/**
+ * Show the dropdown to choose from the SAARC countries.
+ *
+ * @return void
+ */
+function pqrc_display_select_field() {
+	$option    = get_option( 'pqrc_select' );
+
+	$countries = array(
+		'None',
+		'Afghanistan',
+		'Bangladesh',
+		'Bhutan',
+		'India',
+		'Iran',
+		'Maldives',
+		'Nepal',
+		'Pakistan',
+		'Sri Lanka',
+	);
+
+	printf( '<select id="%s" name="%s">', 'pqrc_select', 'pqrc_select' );
+
+	foreach ( $countries as $country ) {
+		$selected = ( $option == $country ) ? 'selected' : '';
+		printf( '<option value="%s" %s>%s</option>', $country, $selected, $country );
+	}
+
+	echo '</select>';
 }
