@@ -17,6 +17,27 @@
 // register_deactivation_hook( __FILE__, 'word_count_deactivate' );
 // function word_count_deactivate() {}
 
+
+$pqrc_countries = array(
+	__( 'Afghanistan', 'post-to-qrcode' ),
+	__( 'Bangladesh', 'post-to-qrcode' ),
+	__( 'Bhutan', 'post-to-qrcode' ),
+	__( 'India', 'post-to-qrcode' ),
+	__( 'Iran', 'post-to-qrcode' ),
+	__( 'Maldives', 'post-to-qrcode' ),
+	__( 'Nepal', 'post-to-qrcode' ),
+	__( 'Pakistan', 'post-to-qrcode' ),
+	__( 'Sri Lanka', 'post-to-qrcode' ),
+
+);
+
+add_action( 'init', 'pqrc_init' );
+
+function pqrc_init() {
+	global $pqrc_countries;
+	$pqrc_countries = apply_filters( 'pqrc_countries', $pqrc_countries );
+}
+
 add_filter( 'the_content', 'pqrc_add_qr_code', 11 );
 
 function pqrc_add_qr_code( $contnet ) {
@@ -70,12 +91,16 @@ function pqrc_settings_init() {
 	add_settings_field( 'pqrc_width', __( 'QR Code Width', 'post-to-qrcode' ), 'pqrc_display_field', 'general', 'pqrc_section', array( 'pqrc_width' ) );
 	add_settings_field( 'pqrc_extra', __( 'Extra', 'post-to-qrcode' ), 'pqrc_display_field', 'general', 'pqrc_section', array( 'pqrc_extra' ) );
 	add_settings_field( 'pqrc_select', __( 'Dropdown', 'post-to-qrcode' ), 'pqrc_display_select_field', 'general', 'pqrc_section' );
+	add_settings_field( 'pqrc_checkbox', __( 'Select Countries', 'post-to-qrcode' ), 'pqrc_display_checkboxgroup_field', 'general', 'pqrc_section' );
+	add_settings_field( 'pqrc_radio', __( 'Do you opt in?', 'post-to-qrcode' ), 'pqrc_display_radio_field', 'general', 'pqrc_section' );
 
 	// register the settings to get the value from the options table.
 	register_setting( 'general', 'pqrc_height', array( 'sanitize_callback' => 'esc_attr' ) );
 	register_setting( 'general', 'pqrc_width', array( 'sanitize_callback' => 'esc_attr' ) );
 	register_setting( 'general', 'pqrc_extra', array( 'sanitize_callback' => 'esc_attr' ) );
 	register_setting( 'general', 'pqrc_select', array( 'sanitize_callback' => 'esc_attr' ) );
+	register_setting( 'general', 'pqrc_checkbox' );
+	register_setting( 'general', 'pqrc_radio', array( 'sanitize_callback' => 'esc_attr' ) );
 }
 
 /**
@@ -120,27 +145,69 @@ function pqrc_width_callback() {
  * @return void
  */
 function pqrc_display_select_field() {
-	$option    = get_option( 'pqrc_select' );
-
-	$countries = array(
-		'None',
-		'Afghanistan',
-		'Bangladesh',
-		'Bhutan',
-		'India',
-		'Iran',
-		'Maldives',
-		'Nepal',
-		'Pakistan',
-		'Sri Lanka',
-	);
+	$option = get_option( 'pqrc_select' );
+	global $pqrc_countries;
 
 	printf( '<select id="%s" name="%s">', 'pqrc_select', 'pqrc_select' );
 
-	foreach ( $countries as $country ) {
+	foreach ( $pqrc_countries as $country ) {
 		$selected = ( $option == $country ) ? 'selected' : '';
 		printf( '<option value="%s" %s>%s</option>', $country, $selected, $country );
 	}
 
 	echo '</select>';
 }
+
+
+/**
+ * Show the dropdown to choose from the SAARC countries.
+ *
+ * @return void
+ */
+function pqrc_display_checkboxgroup_field() {
+	$option = get_option( 'pqrc_checkbox' );
+
+	global $pqrc_countries;
+
+	foreach ( $pqrc_countries as $country ) {
+		$checked = '';
+		if ( is_array( $option ) && in_array( $country, $option ) ) {
+			$checked = 'checked';
+		}
+
+		$selected = ( $option == $country ) ? 'selected' : '';
+		printf( '<input type="checkbox" name="pqrc_checkbox[]" value="%s" %s>%s</input><br/>', $country, $checked, $country );
+	}
+
+	echo '</select>';
+}
+
+/**
+ * Show the radio button to choose from the options.
+ */
+function pqrc_display_radio_field() {
+	$option = get_option( 'pqrc_radio' );
+
+	$radio_options = array(
+		'Yes',
+		'No',
+		'Maybe',
+	);
+
+	foreach ( $radio_options as $radio_option ) {
+		$checked = '';
+		if ( $option == $radio_option ) {
+			$checked = 'checked';
+		}
+
+		printf( '<input type="radio" name="pqrc_radio" value="%s" %s>%s</input><br/>', $radio_option, $checked, $radio_option );
+	}
+}
+
+// Testing the filter 'pqrc_countries'
+add_filter(
+	'pqrc_countries',
+	function ( $countries ) {
+		return array_diff( $countries, array( 'Maldives', 'India' ) );
+	}
+);
