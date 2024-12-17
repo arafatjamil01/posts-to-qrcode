@@ -211,3 +211,17 @@ add_filter(
 		return array_diff( $countries, array( 'Maldives', 'India' ) );
 	}
 );
+
+
+/**
+ * Enqueue scripts in admin, with proper screen.
+ */
+add_action( 'admin_enqueue_scripts', 'pqrc_enqueue_scripts' );
+
+function pqrc_enqueue_scripts( $hook ) {
+	if ( 'options-general.php' == $hook ) {
+		wp_enqueue_script( 'pqrc-admin', plugin_dir_url( __FILE__ ) . 'assets/js/pqrc-main.js', array( 'jquery' ), '1.0', true );
+		wp_enqueue_script( 'mini-toggle', plugin_dir_url( __FILE__ ) . 'assets/js/minitoggle.js', array( 'jquery' ), '1.0', true );
+		wp_enqueue_style( 'mini-toggle', plugin_dir_url( __FILE__ ) . 'assets/css/minitoggle.css', array(), '1.0', 'all' );
+	}
+}
