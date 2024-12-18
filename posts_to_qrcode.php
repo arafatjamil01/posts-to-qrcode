@@ -93,6 +93,7 @@ function pqrc_settings_init() {
 	add_settings_field( 'pqrc_select', __( 'Dropdown', 'post-to-qrcode' ), 'pqrc_display_select_field', 'general', 'pqrc_section' );
 	add_settings_field( 'pqrc_checkbox', __( 'Select Countries', 'post-to-qrcode' ), 'pqrc_display_checkboxgroup_field', 'general', 'pqrc_section' );
 	add_settings_field( 'pqrc_radio', __( 'Do you opt in?', 'post-to-qrcode' ), 'pqrc_display_radio_field', 'general', 'pqrc_section' );
+	add_settings_field( 'pqrc_toggle', __( 'Toggle Field', 'post-to-qrcode' ), 'pqrc_display_toggle_field', 'general', 'pqrc_section' );
 
 	// register the settings to get the value from the options table.
 	register_setting( 'general', 'pqrc_height', array( 'sanitize_callback' => 'esc_attr' ) );
@@ -101,6 +102,7 @@ function pqrc_settings_init() {
 	register_setting( 'general', 'pqrc_select', array( 'sanitize_callback' => 'esc_attr' ) );
 	register_setting( 'general', 'pqrc_checkbox' );
 	register_setting( 'general', 'pqrc_radio', array( 'sanitize_callback' => 'esc_attr' ) );
+	register_setting( 'general', 'pqrc_toggle', array( 'sanitize_callback' => 'esc_attr' ) );
 }
 
 /**
@@ -212,6 +214,23 @@ add_filter(
 	}
 );
 
+/**
+ * Show toggle field.
+ *
+ * @return void
+ */
+function pqrc_display_toggle_field() {
+	$option = get_option( 'pqrc_toggle' );
+	?>
+	<div class="toggle">
+	<div class="minitoggle">
+		<div class="toggle-handle"></div>
+	</div>
+	</div>
+	<?php
+	echo "<input type='hidden' name='pqrc_toggle' id='pqrc_toggle' value='" . $option . "'/>";
+}
+
 
 /**
  * Enqueue scripts in admin, with proper screen.
@@ -220,8 +239,8 @@ add_action( 'admin_enqueue_scripts', 'pqrc_enqueue_scripts' );
 
 function pqrc_enqueue_scripts( $hook ) {
 	if ( 'options-general.php' == $hook ) {
-		wp_enqueue_script( 'pqrc-admin', plugin_dir_url( __FILE__ ) . 'assets/js/pqrc-main.js', array( 'jquery' ), '1.0', true );
 		wp_enqueue_script( 'mini-toggle', plugin_dir_url( __FILE__ ) . 'assets/js/minitoggle.js', array( 'jquery' ), '1.0', true );
+		wp_enqueue_script( 'pqrc-admin', plugin_dir_url( __FILE__ ) . 'assets/js/pqrc-main.js', array( 'jquery' ), '1.0', true );
 		wp_enqueue_style( 'mini-toggle', plugin_dir_url( __FILE__ ) . 'assets/css/minitoggle.css', array(), '1.0', 'all' );
 	}
 }
